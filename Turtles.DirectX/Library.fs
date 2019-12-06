@@ -36,8 +36,12 @@ let main argv =
     use renderTrgt = new RenderTargetView(device, backBuffer)
     let surface = backBuffer.QueryInterface<Surface>()
     let d2DRenderTarget = new RenderTarget(d2DFactory, surface, RenderTargetProperties(PixelFormat(Format.Unknown, Direct2D1.AlphaMode.Premultiplied)))
+
+    let hotpink = Color.HotPink.ToVector3()
     
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(255.0f,10.0f,10.0f,100.0f)) 
+    let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
+
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink)
     let j = ref 0.0
 
     RenderLoop.Run(form, fun _ ->
