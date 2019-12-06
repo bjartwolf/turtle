@@ -1,0 +1,20 @@
+STORAGE: NONE
+RESTRICTION: || (== netcoreapp3.0) (== netstandard2.0) (== netstandard2.1)
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    FsCheck (2.14)
+      FSharp.Core (>= 4.2.3)
+    FsCheck.Xunit (2.14)
+      FsCheck (2.14)
+      xunit.extensibility.execution (>= 2.2 < 3.0)
+    FSharp.Core (4.7)
+    Microsoft.NETCore.Platforms (3.1)
+    NETStandard.Library (2.0.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+    xunit.abstractions (2.0.3)
+    xunit.extensibility.core (2.4.1)
+      NETStandard.Library (>= 1.6.1)
+      xunit.abstractions (>= 2.0.3)
+    xunit.extensibility.execution (2.4.1)
+      NETStandard.Library (>= 1.6.1)
+      xunit.extensibility.core (2.4.1)
