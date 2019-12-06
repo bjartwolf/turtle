@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Painter.fs" />
     <Compile Include="Turtle.fs" />
   </ItemGroup>
 
