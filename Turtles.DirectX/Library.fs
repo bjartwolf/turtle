@@ -43,10 +43,13 @@ let main argv =
 
     let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink)
     let j = ref 0.0
+    let k = ref 0
 
     RenderLoop.Run(form, fun _ ->
             let rot = !j
+            let turning = !k
             j := rot + 0.001
+            k := turning + 1
             d2DRenderTarget.BeginDraw()
             let myAngle : float32 = float32 rot 
             let center = SharpDX.Vector2(float32 500.0,float32 300.0)
@@ -69,7 +72,7 @@ let main argv =
 //            largeSimpleTurtle 271 (0.0, (float 500.0,300.0)) |> printLines
             for x in 1 ..1.. 24 do // 24*15 = 360
                 for y in 1 ..2.. 15 do
-                      simpleTurtle (x*15+y) (0.0<Radians>, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
+                      simpleTurtle (x*15+y+turning) (0.0<Radians>, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
 //                      turtlePoly (x*15+y) (0.0, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
