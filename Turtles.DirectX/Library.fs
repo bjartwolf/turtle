@@ -23,6 +23,7 @@ let main argv =
                 OutputHandle = form.Handle,
                 SampleDescription = SampleDescription(1, 0),
                 SwapEffect = SwapEffect.Discard,
+                IsWindowed = Interop.RawBool(true),
                 Usage = Usage.RenderTargetOutput)
     let mutable device: SharpDX.Direct3D10.Device1 = null
     let swapChain = ref null 
@@ -43,13 +44,13 @@ let main argv =
 
     let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink)
     let j = ref 0.0
-    let k = ref 0
+    let k = ref 0.0
 
     RenderLoop.Run(form, fun _ ->
             let rot = !j
             let turning = !k
             j := rot + 0.001
-            k := turning + 1
+            k := turning + 0.01
             d2DRenderTarget.BeginDraw()
             let myAngle : float32 = float32 rot 
             let center = SharpDX.Vector2(float32 500.0,float32 300.0)
@@ -59,21 +60,39 @@ let main argv =
             let mtrxa = Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
             d2DRenderTarget.Transform <- mtrxa 
 
+
+            
+            // trenger vel en start og...
+            // point 1 er control point, point2 er end point
+            let bezier = QuadraticBezierSegment()
+            bezier.Point1.X <- 100.0f 
+            bezier.Point1.Y <- 50.0f 
+            bezier.Point2.X <- 150.0f 
+            bezier.Point2.Y <- 200.0f 
+
+            let geo = new PathGeometry(d2DFactory) 
+            let sink = geo.Open()
+            sink.BeginFigure(Interop.RawVector2(100.0f, 100.0f), FigureBegin.Hollow)
+            sink.AddQuadraticBezier(bezier)
+            sink.EndFigure(FigureEnd.Open)
+            let foo = sink.Close()
+
             let printLines (lines:seq<Line option*Turtle>) = 
                 let printLine (l: Line) = 
                     let ((x1,y1),(x2,y2)) = l 
                     d2DRenderTarget.DrawLine(Interop.RawVector2(x1,y1),Interop.RawVector2(x2,y2), pinkBrush,0.3f) 
-                    d2DRenderTarget.DrawLine(Interop.RawVector2(x1,y1),Interop.RawVector2(x2,y2), pinkBrush,0.2f) 
                 for line,_ in lines do
                     match line with 
                         | None -> ()
                         | Some(l) -> printLine l 
+
             d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 100.0f)))
-//            largeSimpleTurtle 271 (0.0, (float 500.0,300.0)) |> printLines
-            for x in 1 ..1.. 24 do // 24*15 = 360
-                for y in 1 ..2.. 15 do
-                      simpleTurtle (x*15+y+turning) (0.0<Radians>, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
-//                      turtlePoly (x*15+y) (0.0, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
+            d2DRenderTarget.DrawGeometry(geo, pinkBrush)
+//            d2DRenderTarget.DrawGeometry(Geometry(),pinkBrush, 0.4f)
+            let x = 10.0
+            let y = 10.0
+            simpleTurtle (x*15.0+y+turning) (0.0<Radians>, (float (x+1.0) * 50.0,float (y-1.0) *50.0)) |> printLines
+ //           turtlePoly (x*15+y) (0.0<Radians>, (float (x+1) * 50.0,float (y-1) *50.0)) |> printLines
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )

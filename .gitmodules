@@ -1,0 +1,3 @@
+[submodule "funfish"]
+	path = funfish
+	url = https://github.com/einarwh/funfish

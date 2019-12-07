@@ -112,7 +112,7 @@ let closeToPi (dir:Dir)  =
 (** 
 A Turtle-sequencee is a sequence of turtles and the lines it produces while moving
 *)
-let rec simpleTurtle (turning: int) (t: Turtle): seq<Line option*Turtle> = 
+let rec simpleTurtle (turning: float) (t: Turtle): seq<Line option*Turtle> = 
     let edges = 360.0 / (float turning)
     let step = move (100.0 / float edges) 
     let degreesToTurn  = float turning * 1.0<Degrees>
