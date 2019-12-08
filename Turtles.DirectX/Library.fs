@@ -16,6 +16,7 @@ open SharpDX.Direct2D1.Effects
 let main argv = 
     // 24 x 15
     let form = new RenderForm("SharpDX - MiniTri Direct2D - Direct3D 10 Sample", Size = Size(2000, 800))
+
     let desc = SwapChainDescription (
                 BufferCount = 1,
                 ModeDescription =
@@ -32,18 +33,22 @@ let main argv =
                 SharpDX.Direct3D10.FeatureLevel.Level_10_1, &device, swapChain) 
 
     use d2DFactory = new Direct2D1.Factory()
-    use factory = (!swapChain).GetParent<SharpDX.DXGI.Factory>()
+    use factory = (!swapChain).GetParent<Factory>()
     factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll)
     use backBuffer = Resource.FromSwapChain<Texture2D>((!swapChain), 0)
     use renderTrgt = new RenderTargetView(device, backBuffer)
     let surface = backBuffer.QueryInterface<Surface>()
-    let d2DRenderTarget = new RenderTarget(d2DFactory, surface, RenderTargetProperties(PixelFormat(Format.Unknown, Direct2D1.AlphaMode.Premultiplied)))
+    let d2DRenderTarget = new RenderTarget(d2DFactory, surface, 
+                                  RenderTargetProperties(
+                                    PixelFormat(Format.Unknown, Direct2D1.AlphaMode.Premultiplied)))
 
     let hotpink = Color.HotPink.ToVector3()
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
 
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink)
+    
+    
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.01f) |> Nullable<BrushProperties>)
     let j = ref 0.0
     let k = ref 0.0
 
@@ -63,12 +68,11 @@ let main argv =
 
             d2DRenderTarget.Transform <- getTransFormMatrix 200.0f 2.0f
             addFishToSink sink
-            sink.SetFillMode(Direct2D1.FillMode.Winding)
-
-            sink.EndFigure(FigureEnd.Closed)
+    
+            sink.EndFigure(FigureEnd.Open)
             let foo = sink.Close()
 
-            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 100.0f)))
+//            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 100.0f)))
             d2DRenderTarget.DrawGeometry(geo, pinkBrush)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
