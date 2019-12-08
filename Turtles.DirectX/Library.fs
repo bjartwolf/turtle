@@ -46,28 +46,28 @@ let main argv =
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
     
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.1f) |> Nullable<BrushProperties>)
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.6f) |> Nullable<BrushProperties>)
 
-    let getTransFormMatrix (scale:float32) (translationx: float32)= 
-        let center = SharpDX.Vector2(translationx, 2.0f)
-        let scale = SharpDX.Vector2(scale, scale)
+    let getTransFormMatrix (scale:float32) (translationx: float32) (translationy: float32)= 
+        let center = Vector2(translationx, translationy)
+        let scale = Vector2(scale, scale)
         let mtrx = Matrix3x2.Translation(center)*(Matrix3x2.Scaling(scale))
         Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
- 
+
+    let mutable x = 0.0f
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()
 
-
             let geo = new PathGeometry(d2DFactory) 
             let sink = geo.Open()
-
-            d2DRenderTarget.Transform <- getTransFormMatrix 200.0f 2.0f
+            x <- x + 0.1f
             sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
+            d2DRenderTarget.Transform <- getTransFormMatrix x 3.0f 1.0f
             addFishToSink sink
             sink.EndFigure(FigureEnd.Open)
 
             let foo = sink.Close()
-//            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 100.0f)))
+            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.01f)))
             d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 0.01f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
