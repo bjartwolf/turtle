@@ -61,11 +61,9 @@ let main argv =
             let sink = geo.Open()
             sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
 
-            d2DRenderTarget.Transform <- getTransFormMatrix 10.0f 2.0f
+            d2DRenderTarget.Transform <- getTransFormMatrix 200.0f 2.0f
             addFishToSink sink
-
-            d2DRenderTarget.Transform <- getTransFormMatrix 20.0f 3.0f
-            addFishToSink sink
+            sink.SetFillMode(Direct2D1.FillMode.Winding)
 
             sink.EndFigure(FigureEnd.Closed)
             let foo = sink.Close()
