@@ -5,6 +5,7 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Fish.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
   <ItemGroup>
