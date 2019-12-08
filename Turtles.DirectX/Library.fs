@@ -45,12 +45,8 @@ let main argv =
     let hotpink = Color.HotPink.ToVector3()
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
-
     
-    
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.01f) |> Nullable<BrushProperties>)
-    let j = ref 0.0
-    let k = ref 0.0
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.1f) |> Nullable<BrushProperties>)
 
     let getTransFormMatrix (scale:float32) (translationx: float32)= 
         let center = SharpDX.Vector2(translationx, 2.0f)
@@ -64,16 +60,15 @@ let main argv =
 
             let geo = new PathGeometry(d2DFactory) 
             let sink = geo.Open()
-            sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
 
             d2DRenderTarget.Transform <- getTransFormMatrix 200.0f 2.0f
+            sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
             addFishToSink sink
-    
             sink.EndFigure(FigureEnd.Open)
-            let foo = sink.Close()
 
+            let foo = sink.Close()
 //            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 100.0f)))
-            d2DRenderTarget.DrawGeometry(geo, pinkBrush)
+            d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 0.01f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
