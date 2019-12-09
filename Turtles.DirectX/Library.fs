@@ -58,24 +58,29 @@ let main argv =
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()
 
-            let geo = new PathGeometry(d2DFactory) 
+            let geo = new PathGeometry(d2DFactory)
             let sink = geo.Open()
             x <- x + 0.1f
-            sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
+ //           sink.BeginFigure(Interop.RawVector2(0.0f, 0.0f), FigureBegin.Hollow)
 //            d2DRenderTarget.Transform <- getTransFormMatrix x 3.0f 1.0f
 
 
-            addFishToSink sink
-            sink.EndFigure(FigureEnd.Open)
+//            addFishToSink sink
+  //          sink.EndFigure(FigureEnd.Open)
+            for (start, bezierCurve) in hendersonFishCurves do
+                sink.BeginFigure(start, FigureBegin.Hollow)
+                sink.AddBezier(bezierCurve)
+                sink.EndFigure(FigureEnd.Open)
             let foo = sink.Close()
-//            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.0f)))
+            //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
 
             let foo = new TransformedGeometry(d2DFactory, geo, (getTransFormMatrix (100.0f+x) 3.0f 1.0f)) 
             let foo2 = new TransformedGeometry(d2DFactory, geo, (getTransFormMatrix (x + 200.0f) 1.0f 1.0f)) 
 
-            d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 5.0f)
+            d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 2.0f)
             d2DRenderTarget.DrawGeometry(foo, pinkBrush, strokeWidth = 2.0f)
-            d2DRenderTarget.DrawGeometry(foo2, pinkBrush, strokeWidth = 5.0f)
+            d2DRenderTarget.DrawGeometry(foo2, pinkBrush, strokeWidth = 2.0f)
+ 
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
