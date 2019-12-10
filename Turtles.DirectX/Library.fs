@@ -74,22 +74,37 @@ let main argv =
         sink.EndFigure(FigureEnd.Open)
     let foo = sink.Close()
     let drawFish geo = d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
+    
+    let transformer (factory: Direct2D1.Factory) (geo: Geometry) (mtrx: Matrix3x2): TransformedGeometry =
+            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
+
+    let pathtransformer (factory: Direct2D1.Factory) (geo: PathGeometry) (mtrx: Matrix3x2): TransformedGeometry =
+            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
+
+    let transformtransformer (factory: Direct2D1.Factory) (geo: TransformedGeometry) (mtrx: Matrix3x2): TransformedGeometry =
+            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
+
+
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()
             d2DRenderTarget.Transform <- translate 1000.0f 400.0f |> matrixToRaw
+            let transform = transformer d2DFactory 
+            let ptransform = pathtransformer d2DFactory 
+            let ttransform = transformtransformer d2DFactory 
+
             let fishSize = 100.0f
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
-            let largerFish = new TransformedGeometry(d2DFactory, geo, (scale fishSize |> matrixToRaw)) 
+            let largerFish = transform geo (scale fishSize) 
 
-            let rotFish  = new TransformedGeometry(d2DFactory, largerFish, (rotate (float32 (Math.PI/2.0))
-                                                                          * translate fishSize fishSize |> matrixToRaw))
+            let rotFish  = ttransform largerFish (rotate (float32 (Math.PI/2.0))
+                                               * translate fishSize fishSize )
 
-            let flipFish2 = new TransformedGeometry(d2DFactory, largerFish, (horizontalFlip
-                                                                           * verticalFlip
-                                                                           * translate fishSize fishSize |> matrixToRaw)) 
+            let flipFish2 = ttransform largerFish (horizontalFlip
+                                                 * verticalFlip
+                                                 * translate fishSize fishSize) 
 
-            let flipFish3 = new TransformedGeometry(d2DFactory, largerFish, (verticalFlip |> matrixToRaw)) 
-            let flipFish4 = new TransformedGeometry(d2DFactory, largerFish, (horizontalFlip |> matrixToRaw)) 
+            let flipFish3 = ttransform largerFish verticalFlip
+            let flipFish4 = ttransform largerFish horizontalFlip
 
             drawFish largerFish 
             drawFish rotFish
