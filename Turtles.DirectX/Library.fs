@@ -84,19 +84,27 @@ let main argv =
     let transformtransformer (factory: Direct2D1.Factory) (geo: TransformedGeometry) (mtrx: Matrix3x2): TransformedGeometry =
             new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
 
+    let grouptransformer (factory: Direct2D1.Factory) (geo: GeometryGroup) (mtrx: Matrix3x2): TransformedGeometry =
+            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
 
+    let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
+        new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
+
+    let deg90 = (float32 Math.PI)/2.0f
     RenderLoop.Run(form, fun _ ->
+            //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
             d2DRenderTarget.Transform <- translate 1000.0f 400.0f |> matrixToRaw
+            let group = grouper d2DFactory 
             let transform = transformer d2DFactory 
             let ptransform = pathtransformer d2DFactory 
             let ttransform = transformtransformer d2DFactory 
+            let gtransform = grouptransformer d2DFactory 
 
             let fishSize = 100.0f
-            //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             let largerFish = transform geo (scale fishSize) 
 
-            let rotFish  = ttransform largerFish (rotate (float32 (Math.PI/2.0))
+            let rotFish  = ttransform largerFish (rotate deg90 
                                                * translate fishSize fishSize )
 
             let flipFish2 = ttransform largerFish (horizontalFlip
@@ -111,14 +119,13 @@ let main argv =
             drawFish flipFish2
             drawFish flipFish3
             drawFish flipFish4
-            let group = new GeometryGroup(d2DFactory, Direct2D1.FillMode.Alternate, [|largerFish;
-                                                                                      rotFish;
-                                                                                      flipFish2;
-                                                                                      flipFish3|])   
-            let movedGroup = new TransformedGeometry(d2DFactory, group, translate fishSize fishSize |> matrixToRaw)  
+            let fishgroup = group [|largerFish;
+                                    rotFish;
+                                    flipFish2;
+                                    flipFish3 |]   
+            let movedGroup = gtransform fishgroup (translate fishSize fishSize)
 
             drawFish movedGroup 
-//            drawFish flipFish2
 
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
