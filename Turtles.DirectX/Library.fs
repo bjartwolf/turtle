@@ -75,17 +75,8 @@ let main argv =
     let foo = sink.Close()
     let drawFish geo = d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
     
-    let transformer (factory: Direct2D1.Factory) (geo: Geometry) (mtrx: Matrix3x2): TransformedGeometry =
-            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
-
-    let pathtransformer (factory: Direct2D1.Factory) (geo: PathGeometry) (mtrx: Matrix3x2): TransformedGeometry =
-            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
-
-    let transformtransformer (factory: Direct2D1.Factory) (geo: TransformedGeometry) (mtrx: Matrix3x2): TransformedGeometry =
-            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
-
-    let grouptransformer (factory: Direct2D1.Factory) (geo: GeometryGroup) (mtrx: Matrix3x2): TransformedGeometry =
-            new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) 
+    let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
+        new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
 
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
@@ -96,23 +87,22 @@ let main argv =
             d2DRenderTarget.BeginDraw()
             d2DRenderTarget.Transform <- translate 1000.0f 400.0f |> matrixToRaw
             let group = grouper d2DFactory 
-            let transform = transformer d2DFactory 
-            let ptransform = pathtransformer d2DFactory 
-            let ttransform = transformtransformer d2DFactory 
-            let gtransform = grouptransformer d2DFactory 
+
+            let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
 
             let fishSize = 100.0f
-            let largerFish = transform geo (scale fishSize) 
+            let largerFish = transform (scale fishSize) geo
 
-            let rotFish  = ttransform largerFish (rotate deg90 
-                                               * translate fishSize fishSize )
+            let rotFish  = transform (rotate deg90 
+                                    * translate fishSize fishSize )
+                                      largerFish 
+            let flipFish2 = transform (horizontalFlip
+                                     * verticalFlip
+                                     * translate fishSize fishSize) 
+                                     largerFish
 
-            let flipFish2 = ttransform largerFish (horizontalFlip
-                                                 * verticalFlip
-                                                 * translate fishSize fishSize) 
-
-            let flipFish3 = ttransform largerFish verticalFlip
-            let flipFish4 = ttransform largerFish horizontalFlip
+            let flipFish3 = transform verticalFlip largerFish 
+            let flipFish4 = transform horizontalFlip largerFish 
 
             drawFish largerFish 
             drawFish rotFish
@@ -123,7 +113,7 @@ let main argv =
                                     rotFish;
                                     flipFish2;
                                     flipFish3 |]   
-            let movedGroup = gtransform fishgroup (translate fishSize fishSize)
+            let movedGroup = transform (translate fishSize fishSize) fishgroup
 
             drawFish movedGroup 
 
