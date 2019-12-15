@@ -7,6 +7,7 @@ open SharpDX.Direct3D10
 open SharpDX.DXGI
 open SharpDX.Windows
 open Fish
+open Boxes 
 
 open My.Turtles
 open SharpDX.Direct2D1.Effects
@@ -70,7 +71,10 @@ let main argv =
     let translate (translationx: float32) (translationy: float32)= 
         let center = Vector2(translationx, translationy)
         Matrix3x2.Translation(center)
-    let scale (scale:float32) = 
+    let scale (scalex:float32) (scaley: float32)= 
+        let scale = Vector2(scalex, scaley)
+        Matrix3x2.Scaling(scale)
+    let scaleequal (scale:float32) = 
         let scale = Vector2(scale, scale)
         Matrix3x2.Scaling(scale)
     let flip = 
@@ -80,15 +84,18 @@ let main argv =
         let scale = Vector2(-1.0f, 1.0f)
         Matrix3x2.Scaling(scale)
      
-    let geo = new PathGeometry(d2DFactory)
-    let sink = geo.Open()
+    let fishGeo = new PathGeometry(d2DFactory)
+    let sink = fishGeo.Open()
     for (start, bezierCurve) in hendersonFishCurves do
         let start = Interop.RawVector2(start.X, start.Y)
         sink.BeginFigure(start, FigureBegin.Hollow)
         sink.AddBezier(bezierCurve)
         sink.EndFigure(FigureEnd.Open)
     let foo = sink.Close()
-    let drawFish geo = d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
+//    let drawFish geo = d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
+
+    let drawPicture (picture: Picture) (box: Box)= 
+        d2DRenderTarget.DrawGeometry(picture box, pinkBrush, strokeWidth = 1.0f)
     
     let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
@@ -103,25 +110,31 @@ let main argv =
             d2DRenderTarget.Transform <- translate 1000.0f 400.0f |> matrixToRaw
             let group = grouper d2DFactory 
 
-            let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+            let fishSize = 100.0f
+            let createBox fishSize =  
+                { a = Vector(0.0f, 0.0f); 
+                  b = Vector(fishSize, 0.0f); 
+                  c = Vector(0.0f, fishSize)}
+            let box100 = createBox fishSize
+
+            let drawInBox (box: Box) (geo: Geometry) =
+                let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+                let g = transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo 
+                d2DRenderTarget.DrawGeometry(g, pinkBrush, strokeWidth = 1.0f)
+            drawInBox box100 fishGeo 
+//            drawPicture fishPic box100 
+
+(*
 
             let beside (g1: Geometry) (g2: Geometry) =
                 let deltaG1x = 100.0f 
                 group [|g1;(transform (translatex deltaG1x) g2)|] 
-
             let fishSize = 100.0f
             let fishGeo = transform (scale fishSize * (translate 50.0f 50.0f) * rotate180deg * mirror * translatex 50.0f) geo
 
+*)
 (*
-            let createVector ((ax, ay): (float32*float32))
-                             ((bx,by) : (float32*float32))
-                             ((cx,by) : (float32*float32)) =
-                { a = Vector(0.0f, 0.0f); 
-                  b = Vector(fishSize, 0.0f); 
-                  c = Vector(0.0f, fishSize)}
-            let origo = (0.0f, 0.0f) 
-
-
+    
             let fish = (createVector origo (fishSize, 0.0f) (0.0f, fishSize), fishGeo)
             *)
 //            let fish2 = transform (rotate45deg * (scale (1.0f/1.41f))* flip * translatey (50.0f/1.41f)) fishGeo
