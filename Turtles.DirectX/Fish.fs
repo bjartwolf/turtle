@@ -1,11 +1,13 @@
-module Fishier
+module Fish
 open SharpDX
 open SharpDX.Mathematics
 open SharpDX.Direct2D1
+open Boxes 
 
-type RawPoint = Interop.RawVector2
+type Picture = Box -> Geometry list
+
 let createPoint (x1:float) (y1:float) =
-  Interop.RawVector2(float32 x1, float32 y1)
+  Vector2(float32 x1, float32 y1)
 
 let createBezier (x1, y1) (x2, y2) (x3, y3) : BezierSegment = 
   let segment = BezierSegment()
@@ -17,12 +19,15 @@ let createBezier (x1, y1) (x2, y2) (x3, y3) : BezierSegment =
   segment.Point3.Y <- float32 y3
   segment
 
-type Curve = RawPoint * BezierSegment
-let createCurve (start: RawPoint) 
-                (p1: RawPoint) 
-                (p2: RawPoint) 
-                (p3: RawPoint) =
-  (start, BezierSegment(Point1 = p1, Point2 = p2, Point3 = p3))
+type Curve = Vector * BezierSegment
+let createCurve (start: Vector) 
+                (p1: Vector ) 
+                (p2: Vector ) 
+                (p3: Vector ) =
+  let p1' = Interop.RawVector2(p1.X, p1.Y)
+  let p2' = Interop.RawVector2(p2.X, p2.Y)
+  let p3' = Interop.RawVector2(p3.X, p3.Y)
+  (start, BezierSegment(Point1 = p1', Point2 = p2', Point3 = p3'))
 
 let hendersonFishCurves = [
     createCurve (createPoint 0.0 0.0)

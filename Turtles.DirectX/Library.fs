@@ -6,7 +6,7 @@ open SharpDX.Direct2D1
 open SharpDX.Direct3D10
 open SharpDX.DXGI
 open SharpDX.Windows
-open Fishier
+open Fish
 
 open My.Turtles
 open SharpDX.Direct2D1.Effects
@@ -53,22 +53,37 @@ let main argv =
 
     let rotate (angleInRads:float32) = 
          Matrix3x2.Rotation(angleInRads)
+    let rotate270deg =
+        rotate (float32 Math.PI*1.5f)
+    let rotate180deg =
+        rotate (float32 Math.PI)
+    let rotate90deg =
+        rotate ((float32 Math.PI)/2.0f)
+    let rotate45deg =
+        rotate ((float32 Math.PI)/4.0f)
+    let translatey (translationy: float32) = 
+        let center = Vector2(0.0f, translationy)
+        Matrix3x2.Translation(center)
+    let translatex (translationx: float32) = 
+        let center = Vector2(translationx, 0.0f)
+        Matrix3x2.Translation(center)
     let translate (translationx: float32) (translationy: float32)= 
         let center = Vector2(translationx, translationy)
         Matrix3x2.Translation(center)
     let scale (scale:float32) = 
         let scale = Vector2(scale, scale)
         Matrix3x2.Scaling(scale)
-    let verticalFlip = 
-        let scale = Vector2(-1.0f, 1.0f)
-        Matrix3x2.Scaling(scale)
-    let horizontalFlip = 
+    let flip = 
         let scale = Vector2(1.0f, -1.0f)
+        Matrix3x2.Scaling(scale)
+    let mirror = 
+        let scale = Vector2(-1.0f, 1.0f)
         Matrix3x2.Scaling(scale)
      
     let geo = new PathGeometry(d2DFactory)
     let sink = geo.Open()
     for (start, bezierCurve) in hendersonFishCurves do
+        let start = Interop.RawVector2(start.X, start.Y)
         sink.BeginFigure(start, FigureBegin.Hollow)
         sink.AddBezier(bezierCurve)
         sink.EndFigure(FigureEnd.Open)
@@ -80,7 +95,7 @@ let main argv =
 
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
-
+    
     let deg90 = (float32 Math.PI)/2.0f
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
@@ -90,9 +105,34 @@ let main argv =
 
             let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
 
-            let fishSize = 100.0f
-            let largerFish = transform (scale fishSize) geo
+            let beside (g1: Geometry) (g2: Geometry) =
+                let deltaG1x = 100.0f 
+                group [|g1;(transform (translatex deltaG1x) g2)|] 
 
+            let fishSize = 100.0f
+            let fishGeo = transform (scale fishSize * (translate 50.0f 50.0f) * rotate180deg * mirror * translatex 50.0f) geo
+
+(*
+            let createVector ((ax, ay): (float32*float32))
+                             ((bx,by) : (float32*float32))
+                             ((cx,by) : (float32*float32)) =
+                { a = Vector(0.0f, 0.0f); 
+                  b = Vector(fishSize, 0.0f); 
+                  c = Vector(0.0f, fishSize)}
+            let origo = (0.0f, 0.0f) 
+
+
+            let fish = (createVector origo (fishSize, 0.0f) (0.0f, fishSize), fishGeo)
+            *)
+//            let fish2 = transform (rotate45deg * (scale (1.0f/1.41f))* flip * translatey (50.0f/1.41f)) fishGeo
+//            let fish3 = transform (rotate270deg * (translatey 100.0f) ) fish2
+
+//            let ttile = over fishGeo (over fish2 fish3)
+//            drawFish ttile 
+//            let figure5 = over fish (transform rotate180deg fish)
+//            drawFish figure5
+
+(*
             let rotFish  = transform (rotate deg90 
                                     * translate fishSize fishSize )
                                       largerFish 
@@ -113,10 +153,11 @@ let main argv =
                                     rotFish;
                                     flipFish2;
                                     flipFish3 |]   
+
             let movedGroup = transform (translate fishSize fishSize) fishgroup
 
             drawFish movedGroup 
-
+*)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
