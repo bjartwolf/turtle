@@ -59,7 +59,9 @@ let main argv =
     let scale (scalex:float32) (scaley: float32)= 
         let scale = Vector2(scalex, scaley)
         Matrix3x2.Scaling(scale)
-    
+
+//    let rotate = Matrix3x2.Rotation(float32 Math.PI * -1.5f)
+     
     let emptyGeo = new PathGeometry(d2DFactory)
     let emptySink = emptyGeo.Open()
     emptySink.Close()
@@ -75,9 +77,11 @@ let main argv =
 
     let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
-
+    
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
-        new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
+        new GeometryGroup(factory, FillMode.Alternate, geos)
+    //let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
+    //    new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
     
     let group = grouper d2DFactory 
 
@@ -92,6 +96,7 @@ let main argv =
 
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
         let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+        //transform (rotate * ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y))) geo
         transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo
 
     let draw (geo: Geometry) =
@@ -100,17 +105,13 @@ let main argv =
     let baz = getThings emptyGeo group 
 
     let f = geoInBox fishGeo
-    //let q = baz.squareLimit 4 f
-    let q = baz.quartet f f f f
-//            let tile = baz.ttile (geoInBox' fishGeo) 
-    let baar = baz.utile f 
-    //draw (baar box1000)
+    let q = baz.squareLimit 3 f
+//    let q = baz.ttile f
+    d2DRenderTarget.Transform <- translate 200.0f 200.0f |> matrixToRaw
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            d2DRenderTarget.Transform <- translate 200.0f 200.0f |> matrixToRaw
             draw (q box1000)
-
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
