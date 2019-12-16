@@ -4,8 +4,6 @@ open SharpDX.Mathematics
 open SharpDX.Direct2D1
 open Boxes 
 
-type Picture = Box -> Geometry
-
 let createPoint (x1:float) (y1:float) =
   Vector2(float32 x1, float32 y1)
 

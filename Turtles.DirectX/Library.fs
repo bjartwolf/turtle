@@ -8,6 +8,7 @@ open SharpDX.DXGI
 open SharpDX.Windows
 open Fish
 open Boxes 
+open Limited 
 
 open My.Turtles
 open SharpDX.Direct2D1.Effects
@@ -116,12 +117,28 @@ let main argv =
                   b = Vector(fishSize, 0.0f); 
                   c = Vector(0.0f, fishSize)}
             let box100 = createBox fishSize
+            let box1 = createBox 1.0f 
 
-            let drawInBox (box: Box) (geo: Geometry) =
+            let geoInBox (box: Box) (geo: Geometry): Geometry =
                 let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
-                let g = transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo 
+                transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo
+
+            let geoInBox' (geo: Geometry) (box: Box) : Geometry =
+                let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+                transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo
+   
+            let drawInBox (box: Box) (geo: Geometry) =
+                let g = geoInBox box geo 
                 d2DRenderTarget.DrawGeometry(g, pinkBrush, strokeWidth = 1.0f)
-            drawInBox box100 fishGeo 
+
+            let baz = getThings group 
+
+            // pic er en funksjon fra box til geometri
+            //let pic = fun (b:Box) -> fishGeo :> Geometry 
+            let tile = baz.ttile (geoInBox' fishGeo) 
+            let baar = baz.utile tile 
+            drawInBox box1 (baar box100)
+
 //            drawPicture fishPic box100 
 
 (*
