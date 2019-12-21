@@ -123,15 +123,15 @@ let main argv =
     let draw (geo: Geometry) =
         d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
 
-//    let baz = getThings emptyGeo group 
+    let baz = getThings emptyGeo group 
 
     let f = geoInBox fishGeo 
 //    let p = Boxes.translate (Vector2(0.0f,0.0f))
 //    let a = p >> f 
 //    let q = baz.ttile f
 //    let q = baz.squareLimit 9 f
-//    let q = baz.squareLimit 3 f
-//    let q = baz.quartet f f f f
+ //   let q = baz.squareLimit 3 f
+    let q = baz.quartet f f f f
 
 // x her går riktig vei og i riktig pixler
 // y går ned. må flippe
@@ -145,7 +145,8 @@ let main argv =
             let b =  { a = Vector(100.0f, 100.0f); 
                        b = Vector(500.0f, 100.0f);
                        c = Vector(200.0f, 500.0f)}
-            draw (b |> f)
+//            draw (b |> f)
+            draw (b |> q)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
