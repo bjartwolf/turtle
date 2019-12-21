@@ -93,11 +93,6 @@ let main argv =
     
     let group = grouper d2DFactory 
 
-    let createBox size =  
-        { a = Vector(0.0f, 0.0f); 
-          b = Vector(size, 0.0f); 
-          c = Vector(0.0f, size)}
-        
     let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
 
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
@@ -109,8 +104,11 @@ let main argv =
 //        Console.WriteLine(sprintf "%A" rotAngleB)
         transform ((scale bLength cLength) * (rotate rotAngleB) * (translate box.a.X box.a.Y)) geo
 
+//    let bmp : Bitmap = new Bitmap()
+    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) =
-        d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
+        //d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
+        d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
 
     let baz = getThings emptyGeo group 
 
