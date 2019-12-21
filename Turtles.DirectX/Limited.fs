@@ -22,6 +22,9 @@ let getThings (blankGeo: Geometry) (group: Geometry array -> GeometryGroup)  =
   let turn = bar.turn
   let beside= bar.beside
 
+  let blank : Picture = 
+    fun box -> blankGeo 
+
   let ttile f = 
      let fishN = f |> toss |> flip
      let fishE = fishN |> turn |> turn |> turn 
@@ -37,9 +40,6 @@ let getThings (blankGeo: Geometry) (group: Geometry array -> GeometryGroup)  =
 
   let quartet p q r s = 
     above (beside p q) (beside r s)
-
-  let blank : Picture = 
-    fun box -> blankGeo 
 
   let rec side n p = 
     let s = if n = 1 then blank else side (n - 1) p

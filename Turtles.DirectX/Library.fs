@@ -106,7 +106,7 @@ let main argv =
         let bLength = box.b.Length()
         let cLength = box.c.Length()
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
-
+//        Console.WriteLine(sprintf "%A" rotAngleB)
         transform ((scale bLength cLength) * (rotate rotAngleB) * (translate box.a.X box.a.Y)) geo
 
     let draw (geo: Geometry) =
@@ -116,11 +116,10 @@ let main argv =
 
     let f = geoInBox fishGeo 
 //    let p = Boxes.translate (Vector2(0.0f,0.0f))
-//    let a = p >> f 
-    let q1 = baz.utile f
+    let q = baz.utile f
 //    let q = baz.squareLimit 9 f
  //   let q = baz.squareLimit 3 f
-//    let q = baz.quartet f f f f
+    let r = baz.quartet q q q q  
 
 // x her går riktig vei og i riktig pixler
 // y går ned. må flippe
@@ -131,10 +130,11 @@ let main argv =
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            let b =  { a = Vector(500.0f, 500.0f); 
-                       b = Vector(300.0f, 000.0f);
-                       c = Vector(000.0f, 300.0f)}
-            draw (b |> q1)
+            let b =  { a = Vector(50.0f, 50.0f); 
+                       b = Vector(900.0f, 50.0f);
+                       c = Vector(50.0f, 900.0f)}
+            draw (b |> r)
+//            draw (b |> f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
