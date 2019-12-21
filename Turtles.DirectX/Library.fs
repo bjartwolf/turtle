@@ -78,11 +78,12 @@ let main argv =
 
     let fishGeo = new PathGeometry(d2DFactory)
     let sink = fishGeo.Open()
+    sink.SetFillMode(Direct2D1.FillMode.Winding)
     for (start, bezierCurve) in hendersonFishCurves do
         let start = Interop.RawVector2(start.X, start.Y)
-        sink.BeginFigure(start, FigureBegin.Hollow)
+        sink.BeginFigure(start, FigureBegin.Filled)
         sink.AddBezier(bezierCurve)
-        sink.EndFigure(FigureEnd.Open)
+        sink.EndFigure(FigureEnd.Closed)
     let foo = sink.Close()
 
     let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
@@ -108,7 +109,8 @@ let main argv =
     let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) =
         //d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
-        d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
+//        d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
+        d2DRenderTarget.FillGeometry(geo, bitmapBrush)
 
     let baz = getThings emptyGeo group 
 
