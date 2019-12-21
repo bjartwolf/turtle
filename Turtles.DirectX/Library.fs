@@ -9,6 +9,7 @@ open SharpDX.Windows
 open Fish
 open Boxes 
 open Limited 
+open ScreenSettings
 
 open My.Turtles
 open SharpDX.Direct2D1.Effects
@@ -16,8 +17,7 @@ open SharpDX.Direct2D1.Effects
 [<STAThread>]
 [<EntryPoint>]
 let main argv = 
-    // 24 x 15
-    let form = new RenderForm("Fish", Size = Size(1400, 1400))
+    let form = new RenderForm("Fish", Size = Size(ScreenRes.x_max, ScreenRes.y_max))
 
     let desc = SwapChainDescription (
                 BufferCount = 1,
@@ -48,7 +48,7 @@ let main argv =
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
     
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.02f) |> Nullable<BrushProperties>)
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 1.00f) |> Nullable<BrushProperties>)
 
     let matrixToRaw (mtrx: Matrix3x2) =
         Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
@@ -60,7 +60,11 @@ let main argv =
         let scale = Vector2(scalex, scaley)
         Matrix3x2.Scaling(scale)
 
-//    let rotate = Matrix3x2.Rotation(float32 Math.PI * -1.5f)
+    ///<summary>Flips around the x-axis</summary>
+    let flip = 
+        scale 1.0f -1.0f
+
+    let rotate angle = Matrix3x2.Rotation(angle)
      
     let emptyGeo = new PathGeometry(d2DFactory)
     let emptySink = emptyGeo.Open()
@@ -80,8 +84,6 @@ let main argv =
     
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
-    //let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
-    //    new GeometryGroup (factory, Direct2D1.FillMode.Alternate, geos)
     
     let group = grouper d2DFactory 
 
@@ -89,29 +91,36 @@ let main argv =
         { a = Vector(0.0f, 0.0f); 
           b = Vector(size, 0.0f); 
           c = Vector(0.0f, size)}
-    let box1000 = createBox 1000.0f 
-    let box100 = createBox 100.0f 
-    let box10 = createBox 10.0f 
-    let box1 = createBox 1.0f 
 
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
         let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
-        //transform (rotate * ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y))) geo
-        transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)) geo
+        let dotProd = Vector2.Dot(box.b, box.c);
+        let length = box.b.Length() * box.c.Length()
+        let angle = float32 (Math.Acos(float (dotProd/length)));
+//        transform ((scale box.b.X box.c.Y) * rotate angle * (translate box.a.X box.a.Y)) geo
+//        transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)* rotate angle ) geo
+        transform ((translate box.a.X box.a.Y)* rotate angle *  (scale box.b.X box.c.Y) ) geo
 
     let draw (geo: Geometry) =
         d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
 
     let baz = getThings emptyGeo group 
 
-    let f = geoInBox fishGeo
-    let q = baz.squareLimit 3 f
+    let f = geoInBox fishGeo 
+//    let p = Boxes.translate (Vector2(0.0f,0.0f))
+//    let a = p >> f 
 //    let q = baz.ttile f
+//    let q = baz.squareLimit 9 f
+//    let q = baz.squareLimit 3 f
+//    let q = baz.quartet f f f f
+
+//    d2DRenderTarget.Transform <- flip |> matrixToRaw
     d2DRenderTarget.Transform <- translate 200.0f 200.0f |> matrixToRaw
+
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            draw (q box1000)
+            draw (createBox 1000.0f |> f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )

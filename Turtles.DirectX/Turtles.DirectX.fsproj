@@ -7,9 +7,10 @@
     <ProjectReference Include="..\Turtles\Turtles.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ScreenSettings.fs" />
     <Compile Include="Boxes.fs" />
-    <Compile Include="Pictures.fs"/>
-    <Compile Include="Limited.fs"/>
+    <Compile Include="Pictures.fs" />
+    <Compile Include="Limited.fs" />
     <Compile Include="Fish.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
