@@ -115,7 +115,7 @@ let main argv =
 //    let q = baz.quartet f f f f
 
 //    d2DRenderTarget.Transform <- flip |> matrixToRaw
-    d2DRenderTarget.Transform <- translate 200.0f 200.0f |> matrixToRaw
+    d2DRenderTarget.Transform <- translate 1000.0f 500.0f |> matrixToRaw
 
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
