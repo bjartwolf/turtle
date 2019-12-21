@@ -8,6 +8,7 @@ type Foo = {
   ttile: Picture -> Picture;
   utile: Picture -> Picture;
   toss: Picture -> Picture;
+  turn: Picture -> Picture;
   quartet: Picture -> Picture -> Picture -> Picture -> Picture;
   squareLimit: int -> Picture -> Picture 
 } 
@@ -106,6 +107,7 @@ let getThings (blankGeo: Geometry) (group: Geometry array -> GeometryGroup)  =
   {
     ttile = ttile;
     utile = utile; 
+    turn = turn; 
     toss = toss; 
     quartet = quartet;
     squareLimit = squareLimit; 

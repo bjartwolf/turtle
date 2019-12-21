@@ -1,5 +1,6 @@
 ﻿open System
 open System.Drawing
+open System.Windows
 open SharpDX
 open SharpDX.Mathematics
 open SharpDX.Direct2D1
@@ -100,25 +101,13 @@ let main argv =
     let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
 
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
-        let xSkew = float32 (Math.Atan2(float box.b.Y, float box.b.X)) 
-        //? 
-        let ySkew = (float32 Math.PI/2.0f) - float32 (Math.Atan2(float box.c.Y, float box.c.X)) 
-        // scale skew translate
-        // angleX
+        // kan droppe skew hvis vi ikke trenger det...
+        // roterer bare etter B aksen
         let bLength = box.b.Length()
         let cLength = box.c.Length()
-        transform ((scale bLength cLength) * (skew xSkew ySkew) * (translate box.a.X box.a.Y)) geo
-        (*
-        let dotProd = Vector2.Dot(box.b, box.c);
-        let lengthBCProd = box.b.Length() * box.c.Length() // mulig man kan finne vinkelen kjappere uten kvadratrot her
-        let angle = float32 (Math.Acos(float (dotProd/lengthBCProd)));
-//        transform ((scale box.b.X box.c.Y) * rotate angle * (translate box.a.X box.a.Y)) geo
-        //transform ((scale bLength cLength) * (translate box.a.X box.a.Y)* rotate angle ) geo
-        let bLength = box.b.Length()
-        let cLength = box.c.Length()
-        transform ((scale bLength cLength) * (translate box.a.X box.a.Y) ) geo
-*)
-//        transform ((translate box.a.X box.a.Y)* rotate angle *  (scale box.b.X box.c.Y) ) geo
+        let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
+
+        transform ((scale bLength cLength) * (rotate rotAngleB) * (translate box.a.X box.a.Y)) geo
 
     let draw (geo: Geometry) =
         d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
@@ -128,10 +117,10 @@ let main argv =
     let f = geoInBox fishGeo 
 //    let p = Boxes.translate (Vector2(0.0f,0.0f))
 //    let a = p >> f 
-//    let q = baz.ttile f
+    let q1 = baz.utile f
 //    let q = baz.squareLimit 9 f
  //   let q = baz.squareLimit 3 f
-    let q = baz.quartet f f f f
+//    let q = baz.quartet f f f f
 
 // x her går riktig vei og i riktig pixler
 // y går ned. må flippe
@@ -142,11 +131,10 @@ let main argv =
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            let b =  { a = Vector(100.0f, 100.0f); 
-                       b = Vector(500.0f, 100.0f);
-                       c = Vector(200.0f, 500.0f)}
-//            draw (b |> f)
-            draw (b |> q)
+            let b =  { a = Vector(500.0f, 500.0f); 
+                       b = Vector(300.0f, 000.0f);
+                       c = Vector(000.0f, 300.0f)}
+            draw (b |> q1)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
