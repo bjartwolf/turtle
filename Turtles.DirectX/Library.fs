@@ -91,7 +91,7 @@ let main argv =
         { a = Vector(0.0f, 0.0f); 
           b = Vector(size, 0.0f); 
           c = Vector(0.0f, size)}
-
+        
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
         let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
         let dotProd = Vector2.Dot(box.b, box.c);
@@ -104,7 +104,7 @@ let main argv =
     let draw (geo: Geometry) =
         d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
 
-    let baz = getThings emptyGeo group 
+//    let baz = getThings emptyGeo group 
 
     let f = geoInBox fishGeo 
 //    let p = Boxes.translate (Vector2(0.0f,0.0f))
@@ -114,13 +114,15 @@ let main argv =
 //    let q = baz.squareLimit 3 f
 //    let q = baz.quartet f f f f
 
-//    d2DRenderTarget.Transform <- flip |> matrixToRaw
-    d2DRenderTarget.Transform <- translate 1000.0f 500.0f |> matrixToRaw
+// x her går riktig vei og i riktig pixler
+// y går ned. må flippe
+    d2DRenderTarget.Transform <- flip * translate 500.0f 500.0f |> matrixToRaw
 
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            draw (createBox 1000.0f |> f)
+            draw (createBox 500.0f |> f)
+            d2DRenderTarget.Transform <- flip |> matrixToRaw
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
