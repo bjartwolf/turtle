@@ -60,6 +60,11 @@ let main argv =
         let scale = Vector2(scalex, scaley)
         Matrix3x2.Scaling(scale)
 
+
+    ///<summary>Missing rotation point?</summary>
+    let skew(angleX:float32) (angleY: float32) = 
+        Matrix3x2.Skew(angleX, angleY)
+
     ///<summary>Flips around the x-axis</summary>
     let flip = 
         scale 1.0f -1.0f
@@ -92,14 +97,28 @@ let main argv =
           b = Vector(size, 0.0f); 
           c = Vector(0.0f, size)}
         
+    let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+
     let geoInBox (geo: Geometry) (box: Box) : Geometry =
-        let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
+        let xSkew = float32 (Math.Atan2(float box.b.Y, float box.b.X)) 
+        //? 
+        let ySkew = (float32 Math.PI/2.0f) - float32 (Math.Atan2(float box.c.Y, float box.c.X)) 
+        // scale skew translate
+        // angleX
+        let bLength = box.b.Length()
+        let cLength = box.c.Length()
+        transform ((scale bLength cLength) * (skew xSkew ySkew) * (translate box.a.X box.a.Y)) geo
+        (*
         let dotProd = Vector2.Dot(box.b, box.c);
-        let length = box.b.Length() * box.c.Length()
-        let angle = float32 (Math.Acos(float (dotProd/length)));
+        let lengthBCProd = box.b.Length() * box.c.Length() // mulig man kan finne vinkelen kjappere uten kvadratrot her
+        let angle = float32 (Math.Acos(float (dotProd/lengthBCProd)));
 //        transform ((scale box.b.X box.c.Y) * rotate angle * (translate box.a.X box.a.Y)) geo
-//        transform ((scale box.b.X box.c.Y) * (translate box.a.X box.a.Y)* rotate angle ) geo
-        transform ((translate box.a.X box.a.Y)* rotate angle *  (scale box.b.X box.c.Y) ) geo
+        //transform ((scale bLength cLength) * (translate box.a.X box.a.Y)* rotate angle ) geo
+        let bLength = box.b.Length()
+        let cLength = box.c.Length()
+        transform ((scale bLength cLength) * (translate box.a.X box.a.Y) ) geo
+*)
+//        transform ((translate box.a.X box.a.Y)* rotate angle *  (scale box.b.X box.c.Y) ) geo
 
     let draw (geo: Geometry) =
         d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
@@ -116,13 +135,17 @@ let main argv =
 
 // x her går riktig vei og i riktig pixler
 // y går ned. må flippe
-    d2DRenderTarget.Transform <- flip * translate 500.0f 500.0f |> matrixToRaw
-
+// vil ha origo i mitten
+//    d2DRenderTarget.Transform <- flip 
+//                               * translate (float32 ScreenRes.x_max / 2.0f) (float32 -ScreenRes.y_max) 
+//                               |> matrixToRaw
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            draw (createBox 500.0f |> f)
-            d2DRenderTarget.Transform <- flip |> matrixToRaw
+            let b =  { a = Vector(100.0f, 100.0f); 
+                       b = Vector(500.0f, 000.0f);
+                       c = Vector(000.0f, 500.0f)}
+            draw (b |> f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )

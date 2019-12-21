@@ -28,7 +28,7 @@ let createCurve (start: Vector)
   (start, BezierSegment(Point1 = p1', Point2 = p2', Point3 = p3'))
 
 let hendersonFishCurves = [
-  createCurve (createPoint 0.0 0.0)
+  createCurve   (createPoint 0.0 0.0)
                 (createPoint 0.0 0.2)
                 (createPoint 0.0 0.5)
                 (createPoint 0.0 1.0)
