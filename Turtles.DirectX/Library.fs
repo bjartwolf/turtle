@@ -143,7 +143,7 @@ let main argv =
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
             let b =  { a = Vector(100.0f, 100.0f); 
-                       b = Vector(500.0f, 000.0f);
+                       b = Vector(500.0f, 100.0f);
                        c = Vector(000.0f, 500.0f)}
             draw (b |> f)
             d2DRenderTarget.EndDraw()
