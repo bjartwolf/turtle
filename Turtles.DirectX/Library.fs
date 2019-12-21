@@ -144,7 +144,7 @@ let main argv =
             d2DRenderTarget.BeginDraw()
             let b =  { a = Vector(100.0f, 100.0f); 
                        b = Vector(500.0f, 100.0f);
-                       c = Vector(000.0f, 500.0f)}
+                       c = Vector(200.0f, 500.0f)}
             draw (b |> f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
