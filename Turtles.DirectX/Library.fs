@@ -105,7 +105,7 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-//////////////    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
+//let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush)
     //let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
 
