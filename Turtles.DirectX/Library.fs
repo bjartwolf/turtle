@@ -94,8 +94,8 @@ let main argv =
                      else 
                         -cLength
 
-        Console.WriteLine(sprintf "Vector a: %A Vector b: %A Vector c: %A " box.a box.b box.c)
-        Console.WriteLine(sprintf "delta: %f --- angleBC: %f ----- cScale:  %f" delta angleBC cScale)
+//        Console.WriteLine(sprintf "Vector a: %A Vector b: %A Vector c: %A " box.a box.b box.c)
+//        Console.WriteLine(sprintf "delta: %f --- angleBC: %f ----- cScale:  %f" delta angleBC cScale)
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
 //        transform (rotate rotAngleB box.a) geo
         //transform ((rotate rotAngleB box.a) * (scale bLength cLength box.a) * (translate box.a.X box.a.Y)) geo
@@ -125,11 +125,8 @@ let main argv =
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
             let b =  { a = Vector(300.0f, 300.0f); 
-                       b = Vector(500.0f, 000.0f);
-                       c = Vector(0.0f, 500.0f)}
-            (*let b =  { a = Vector(300.0f, 300.0f); 
-                       b = Vector(500.0f, 100.0f);
-                       c = Vector(-100.0f, 500.0f)}*)
+                       b = Vector(1000.0f, 100.0f);
+                       c = Vector(-100.0f, 1000.0f)}
             //draw (b |> (baz.over f q ))
             //draw (b |> baz.ttile f)
             draw (b |> baz.squareLimit 3 f)
