@@ -83,14 +83,8 @@ let main argv =
         sink.AddBezier(bezierCurve)
         sink.EndFigure(FigureEnd.Open)
     let foo = sink.Close()
-   
-    let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
-        new GeometryGroup(factory, FillMode.Alternate, geos)
 
-    let geoInBox (transform: Matrix3x2 -> Geometry -> Geometry) (geo: Geometry) (box: Box) : Geometry =
-        // kan droppe skew hvis vi ikke trenger det...
-        // roterer bare etter B aksen
-        // lager en matrix3x2 av boxen
+    let boxToMtrx (box: Box) : Matrix3x2 = 
         let bLength = box.b.Length()
         let cLength = box.c.Length()
         let dotProdBC = Vector2.Dot(box.b,box.c)
@@ -103,12 +97,19 @@ let main argv =
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
         Console.WriteLine(sprintf "Vector a: %A Vector b: %A Vector c: %A " box.a box.b box.c)
         Console.WriteLine(sprintf "C-skalering: %A   - Vinkel B og C vektor: %f" cScale angleBC)
-        
 //        transform (rotate rotAngleB box.a) geo
         //transform ((rotate rotAngleB box.a) * (scale bLength cLength box.a) * (translate box.a.X box.a.Y)) geo
         let mtrx = (scaleOrigo bLength cScale) * (translate box.a.X box.a.Y) * (rotate rotAngleB box.a)
-//        Console.WriteLine(sprintf "%A" mtrx)
-        transform mtrx geo
+        mtrx
+
+    let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
+        new GeometryGroup(factory, FillMode.Alternate, geos)
+
+    let geoInBox (transform: Box -> Geometry -> Geometry) (geo: Geometry) (box: Box) : Geometry =
+        // kan droppe skew hvis vi ikke trenger det...
+        // roterer bare etter B aksen og skalerer motsatt om c vektoren peker i en annen retning. kan 
+        // lager en matrix3x2 av boxen
+        transform box geo
 
 //    let bmp : Bitmap = new Bitmap()
 //    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
@@ -119,8 +120,9 @@ let main argv =
 
     /// Her ligger nok litt av trikset
     /// Må bruke denne også i kombinasjoner...?
-    let transform : Matrix3x2 -> Geometry -> Geometry = 
-      let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
+    let transform : Box -> Geometry -> Geometry = 
+      let transformer (factory: Direct2D1.Factory) (box: Box) (geo : Geometry) : Geometry =
+        let mtrx = boxToMtrx box
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
       transformer d2DFactory 
 
