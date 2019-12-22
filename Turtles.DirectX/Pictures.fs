@@ -12,7 +12,12 @@ type PictureFoo = {
   beside: Picture -> Picture -> Picture;
   above: Picture -> Picture -> Picture;
 }
+// den første tingen er en 1x1 geometri
+// tegner den i en box med geoTilBox (som tar en geo og en box og gir en geo)
+// geo til box skalerer noe fra til boxen
+// pic er en funk fra box til geo.
 
+// de andre er box til box - de ransformerer boxer.
 let turn (p : Picture) : Picture = 
   turn >> p
 
@@ -36,7 +41,8 @@ let aboveRatio (group: Geometry array -> GeometryGroup) (m : int) (n : int) (p1 
 
 let over (group: Geometry array -> GeometryGroup) (p1 : Picture) (p2: Picture) : Picture = 
   fun box ->
-     group [|p1 box; p2 box|] :> Geometry 
+     let geoGroup = group [|p1 box; p2 box|] 
+     geoGroup :> Geometry 
 
 let getPictureFoo (group: Geometry array -> GeometryGroup) : PictureFoo =
   {

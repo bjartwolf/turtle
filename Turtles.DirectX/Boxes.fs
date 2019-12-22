@@ -14,20 +14,20 @@ type Box =
 
 type Picture = Box -> Geometry
 
-let turn { a = a; b = b; c = c } = 
-  { a = a + b
-    b = c 
-    c = (b * -1.f) }
+let turn box = 
+  { a = box.a + box.b
+    b = box.c 
+    c = Vector2.Negate box.b }
 
-let flip { a = a; b = b; c = c } = 
-  { a = a + b
-    b = -b
-    c = c }
- 
-let toss { a = a; b = b; c = c } = 
-  { a = a + ((b + c) * 0.5f)
-    b = (b + c) * 0.5f 
-    c = (c - b) * 0.5f }
+let flip box = 
+  { a = box.a + box.b
+    b = Vector2.Negate box.b
+    c = box.c }
+
+let toss box = 
+  { a = box.a + ((box.b + box.c) * 0.5f)
+    b = (box.b + box.c) * 0.5f 
+    c = (box.c - box.b) * 0.5f }
 
 let scaleHorizontally (s : float32) { a = a; b = b; c = c } =
   { a = a
@@ -48,7 +48,7 @@ let moveHorizontally offset { a = a; b = b; c = c } =
     c = c }
   
 let moveVertically (offset: float32) { a = a; b = b; c = c } = 
-  { a = a + (c * offset)
+  { a = a + (offset * c)
     b = b
     c = c }
 

@@ -57,20 +57,18 @@ let main argv =
     let translate (translationx: float32) (translationy: float32)= 
         let center = Vector2(translationx, translationy)
         Matrix3x2.Translation(center)
-    let scale (scalex:float32) (scaley: float32)= 
-        let scale = Vector2(scalex, scaley)
-        Matrix3x2.Scaling(scale)
 
+    let scaleOrigo (scalex:float32) (scaley: float32) =
+        Matrix3x2.Scaling(scalex, scaley)
+
+    let scale (scalex:float32) (scaley: float32) (center: Vector2)= 
+        Matrix3x2.Scaling(scalex, scaley, center)
 
     ///<summary>Missing rotation point?</summary>
     let skew(angleX:float32) (angleY: float32) = 
         Matrix3x2.Skew(angleX, angleY)
 
-    ///<summary>Flips around the x-axis</summary>
-    let flip = 
-        scale 1.0f -1.0f
-
-    let rotate angle = Matrix3x2.Rotation(angle)
+    let rotate angle (point : Vector2) = Matrix3x2.Rotation(angle, point)
      
     let emptyGeo = new PathGeometry(d2DFactory)
     let emptySink = emptyGeo.Open()
@@ -78,63 +76,66 @@ let main argv =
 
     let fishGeo = new PathGeometry(d2DFactory)
     let sink = fishGeo.Open()
-    sink.SetFillMode(Direct2D1.FillMode.Winding)
+    sink.SetFillMode(Direct2D1.FillMode.Alternate)
     for (start, bezierCurve) in hendersonFishCurves do
         let start = Interop.RawVector2(start.X, start.Y)
-        sink.BeginFigure(start, FigureBegin.Filled)
+        sink.BeginFigure(start, FigureBegin.Hollow  )
         sink.AddBezier(bezierCurve)
-        sink.EndFigure(FigureEnd.Closed)
+        sink.EndFigure(FigureEnd.Open)
     let foo = sink.Close()
-
-    let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
-        new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
-    
+   
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
-    
-    let group = grouper d2DFactory 
 
-    let transform : Matrix3x2 -> Geometry -> Geometry = transformer d2DFactory 
-
-    let geoInBox (geo: Geometry) (box: Box) : Geometry =
+    let geoInBox (transform: Matrix3x2 -> Geometry -> Geometry) (geo: Geometry) (box: Box) : Geometry =
         // kan droppe skew hvis vi ikke trenger det...
         // roterer bare etter B aksen
+        // lager en matrix3x2 av boxen
         let bLength = box.b.Length()
         let cLength = box.c.Length()
+        let dotProdBC = Vector2.Dot(box.b,box.c)
+        let angleBC = acos (dotProdBC / (bLength * cLength )) 
+        let cScale = if float angleBC >= Math.PI || float angleBC <= -Math.PI then
+                        -cLength
+                     else 
+                        cLength
+
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
-//        Console.WriteLine(sprintf "%A" rotAngleB)
-        transform ((scale bLength cLength) * (rotate rotAngleB) * (translate box.a.X box.a.Y)) geo
+        Console.WriteLine(sprintf "Vector a: %A Vector b: %A Vector c: %A " box.a box.b box.c)
+        Console.WriteLine(sprintf "C-skalering: %A   - Vinkel B og C vektor: %f" cScale angleBC)
+        
+//        transform (rotate rotAngleB box.a) geo
+        //transform ((rotate rotAngleB box.a) * (scale bLength cLength box.a) * (translate box.a.X box.a.Y)) geo
+        let mtrx = (scaleOrigo bLength cScale) * (translate box.a.X box.a.Y) * (rotate rotAngleB box.a)
+//        Console.WriteLine(sprintf "%A" mtrx)
+        transform mtrx geo
 
 //    let bmp : Bitmap = new Bitmap()
-    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
+//    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) =
         //d2DRenderTarget.DrawGeometry(geo, pinkBrush, strokeWidth = 1.0f)
-//        d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
-        d2DRenderTarget.FillGeometry(geo, bitmapBrush)
+        d2DRenderTarget.DrawGeometry(geo, pinkBrush)
+//        d2DRenderTarget.FillGeometry(geo, bitmapBrush)
 
+    /// Her ligger nok litt av trikset
+    /// Må bruke denne også i kombinasjoner...?
+    let transform : Matrix3x2 -> Geometry -> Geometry = 
+      let transformer (factory: Direct2D1.Factory) (mtrx: Matrix3x2) (geo : Geometry) : Geometry =
+        new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
+      transformer d2DFactory 
+
+    let group = grouper d2DFactory 
     let baz = getThings emptyGeo group 
 
-    let f = geoInBox fishGeo 
-//    let p = Boxes.translate (Vector2(0.0f,0.0f))
-    let q = baz.utile f
-//    let q = baz.squareLimit 9 f
- //   let q = baz.squareLimit 3 f
-    let r = baz.quartet q q q q  
-
-// x her går riktig vei og i riktig pixler
-// y går ned. må flippe
-// vil ha origo i mitten
-//    d2DRenderTarget.Transform <- flip 
-//                               * translate (float32 ScreenRes.x_max / 2.0f) (float32 -ScreenRes.y_max) 
-//                               |> matrixToRaw
+    let f : Picture = geoInBox transform fishGeo 
+    let q = baz.flip f 
     RenderLoop.Run(form, fun _ ->
             //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
             d2DRenderTarget.BeginDraw()
-            let b =  { a = Vector(50.0f, 50.0f); 
-                       b = Vector(900.0f, 50.0f);
-                       c = Vector(50.0f, 900.0f)}
-            draw (b |> r)
-//            draw (b |> f)
+            let b =  { a = Vector(300.0f, 300.0f); 
+                       b = Vector(500.0f, 100.0f);
+                       c = Vector(-100.0f, 500.0f)}
+            draw (b |> (baz.over f q ))
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )

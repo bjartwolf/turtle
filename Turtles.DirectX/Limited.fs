@@ -11,6 +11,8 @@ type Foo = {
   turn: Picture -> Picture;
   quartet: Picture -> Picture -> Picture -> Picture -> Picture;
   squareLimit: int -> Picture -> Picture 
+  flip: Picture -> Picture 
+  over: Picture -> Picture -> Picture 
 } 
 
 let getThings (blankGeo: Geometry) (group: Geometry array -> GeometryGroup)  = 
@@ -109,6 +111,8 @@ let getThings (blankGeo: Geometry) (group: Geometry array -> GeometryGroup)  =
     utile = utile; 
     turn = turn; 
     toss = toss; 
+    flip = flip; 
+    over = over; 
     quartet = quartet;
     squareLimit = squareLimit; 
   }
