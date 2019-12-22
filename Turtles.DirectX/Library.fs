@@ -49,7 +49,7 @@ let main argv =
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
     
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.50f) |> Nullable<BrushProperties>)
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.30f) |> Nullable<BrushProperties>)
 
     let matrixToRaw (mtrx: Matrix3x2) =
         Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
@@ -105,8 +105,9 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-//    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
+//////////////    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush)
+    //let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
 
     let transform : Box -> Geometry -> Geometry = 
       let transformer (factory: Direct2D1.Factory) (box: Box) (geo : Geometry) : Geometry =
@@ -125,15 +126,20 @@ let main argv =
 
     let mutable i = 0.0f
     let fish = fishGeo :> Geometry 
+    let b =  { a = Vector(300.0f, 300.0f); 
+               b = Vector(1000.0f, 100.0f);
+               c = Vector(-100.0f, 1000.0f)}
+    let f : Picture = fun (box:Box) -> transform box (rotateStep i fish) 
+    let pic = b |> baz.squareLimit 4 f
+    let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
+    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
     RenderLoop.Run(form, fun _ ->
-            i <- i + 0.01f
+            i <- i + 0.005f
             d2DRenderTarget.BeginDraw()
-            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.30f)))
-            let b =  { a = Vector(300.0f, 300.0f); 
-                       b = Vector(1000.0f, 100.0f);
-                       c = Vector(-100.0f, 1000.0f)}
-            let f : Picture = fun (box:Box) -> transform box (rotateStep i fish) 
-            draw (b |> baz.squareLimit 2 f)
+//            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.010f)))
+            draw pic 
+            d2DRenderTarget.FillRectangle(rect, rectBrush);
+            d2DRenderTarget.Transform <- skew i i |> matrixToRaw
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
 //            Console.ReadLine() |> ignore
