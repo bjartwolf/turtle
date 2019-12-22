@@ -49,7 +49,7 @@ let main argv =
     
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
     
-    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 1.00f) |> Nullable<BrushProperties>)
+    let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 0.50f) |> Nullable<BrushProperties>)
 
     let matrixToRaw (mtrx: Matrix3x2) =
         Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
@@ -105,7 +105,6 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-
 //    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
     let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush)
 
@@ -115,24 +114,29 @@ let main argv =
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
       transformer d2DFactory 
 
+    let rotateStep : float32 -> Geometry -> Geometry = 
+      let transformer (factory: Direct2D1.Factory) (rotation: float32) (geo : Geometry) : Geometry =
+        let mtrx = Matrix3x2.Rotation rotation 
+        new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
+      transformer d2DFactory 
+
     let group = grouper d2DFactory 
     let baz = getThings emptyGeo group 
 
-    let fish = fishGeo //:> Geometry
-    let f : Picture = fun (box:Box) -> transform box fish 
-    let q = baz.flip f 
+    let mutable i = 0.0f
+    let fish = fishGeo :> Geometry 
     RenderLoop.Run(form, fun _ ->
-            //d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.90f)))
+            i <- i + 0.01f
             d2DRenderTarget.BeginDraw()
+            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.30f)))
             let b =  { a = Vector(300.0f, 300.0f); 
                        b = Vector(1000.0f, 100.0f);
                        c = Vector(-100.0f, 1000.0f)}
-            //draw (b |> (baz.over f q ))
-            //draw (b |> baz.ttile f)
-            draw (b |> baz.squareLimit 3 f)
+            let f : Picture = fun (box:Box) -> transform box (rotateStep i fish) 
+            draw (b |> baz.squareLimit 2 f)
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
-            Console.ReadLine() |> ignore
+//            Console.ReadLine() |> ignore
         )
     printfn "%A" argv
     backBuffer.Dispose()
