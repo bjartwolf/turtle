@@ -105,9 +105,9 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-//let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
-    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush)
-    //let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
+    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
+//    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 0.1f)
+    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, bitmapBrush)
 
     let transform : Box -> Geometry -> Geometry = 
       let transformer (factory: Direct2D1.Factory) (box: Box) (geo : Geometry) : Geometry =
@@ -117,29 +117,36 @@ let main argv =
 
     let rotateStep : float32 -> Geometry -> Geometry = 
       let transformer (factory: Direct2D1.Factory) (rotation: float32) (geo : Geometry) : Geometry =
-        let mtrx = Matrix3x2.Rotation rotation 
+        let mtrx = Matrix3x2.Rotation (rotation / (2.0f*float32 Math.PI))
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
       transformer d2DFactory 
 
     let group = grouper d2DFactory 
     let baz = getThings emptyGeo group 
 
-    let mutable i = 0.0f
     let fish = fishGeo :> Geometry 
-    let b =  { a = Vector(300.0f, 300.0f); 
-               b = Vector(1000.0f, 100.0f);
-               c = Vector(-100.0f, 1000.0f)}
-    let f : Picture = fun (box:Box) -> transform box (rotateStep i fish) 
-    let pic = b |> baz.squareLimit 4 f
+    let b =  { a = Vector(0.0f, 0.0f); 
+               b = Vector(1000.0f, 000.0f);
+               c = Vector(00.0f, 1000.0f)}
+//    let b =  { a = Vector(300.0f, 300.0f); 
+//               b = Vector(1000.0f, 100.0f);
+//               c = Vector(-100.0f, 1000.0f)}
+    let f = fun i -> fun (box:Box) -> transform box (rotateStep i fish) 
+    let pic : Geometry array = [|0 .. 360 |] 
+                                   |> Array.map (fun i -> 
+                                        b |> baz.squareLimit 4 (f (float32 i)))
     let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
     let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
+
+    let mutable i = 0
     RenderLoop.Run(form, fun _ ->
-            i <- i + 0.005f
+            i <- i + 1
+            if (i > 360) then i <- 0
             d2DRenderTarget.BeginDraw()
-//            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.010f)))
-            draw pic 
+            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.010f)))
+            draw pic.[i] 
             d2DRenderTarget.FillRectangle(rect, rectBrush);
-            d2DRenderTarget.Transform <- skew i i |> matrixToRaw
+//            d2DRenderTarget.Transform <- skew i i |> matrixToRaw
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
 //            Console.ReadLine() |> ignore
