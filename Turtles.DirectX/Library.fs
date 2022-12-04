@@ -128,9 +128,9 @@ let main argv =
                b = Vector(1000.0f, 000.0f);
                c = Vector(00.0f, 1000.0f)}
     let f = fun i -> fun (box:Box) -> transform box (rotateStep i fish) 
-    let pic : Geometry = b |> baz.squareLimit 4 (f (float32 0))
+    let pic : Geometry = b |> baz.squareLimit 7 (f (float32 0))
     let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
-    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
+    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max/2.0f, float32 ScreenRes.y_max/2.0f)
 
     let mutable i:float32 = 1.0f
     RenderLoop.Run(form, fun _ ->
@@ -138,6 +138,7 @@ let main argv =
             d2DRenderTarget.BeginDraw()
             d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.010f)))
             draw pic i 
+            if (i > 4.0f) then i <- 2.0f 
             d2DRenderTarget.FillRectangle(rect, rectBrush);
             d2DRenderTarget.Transform <- skew i i |> matrixToRaw
             d2DRenderTarget.EndDraw()
