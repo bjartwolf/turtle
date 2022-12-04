@@ -7,6 +7,7 @@ we are Windows-only.
 
 To run:
 ```
+dotnet tool restore
 dotnet paket restore
 dotnet run --project .\Turtles.DirectX\Turtles.DirectX.fsproj
 ```
