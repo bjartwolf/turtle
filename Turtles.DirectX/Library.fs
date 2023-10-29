@@ -12,6 +12,7 @@ open Limited
 open ScreenSettings
 open SharpDX.D3DCompiler
 open SharpDX.Direct3D
+open SharpDX.Direct2D1.Effects
 
 [<STAThread>]
 [<EntryPoint>]
@@ -53,6 +54,7 @@ let main argv =
     let pink = Interop.RawColor4(hotpink.X, hotpink.Y, hotpink.Z, 50.0f)
     
     let pinkBrush = new SolidColorBrush(d2DRenderTarget, pink, BrushProperties(Opacity = 1.00f) |> Nullable<BrushProperties>)
+
 
     let matrixToRaw (mtrx: Matrix3x2) =
         Interop.RawMatrix3x2(mtrx.M11, mtrx.M12, mtrx.M21, mtrx.M22, mtrx.M31, mtrx.M32)
@@ -96,6 +98,8 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
+    let vertexShaderCode = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+
     let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 0.5f)
 
     let transform : Box -> Geometry -> Geometry = 
@@ -115,15 +119,18 @@ let main argv =
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 3 (f ) b
 
-    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
     //let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_4_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+    //let vertexShader = new VertexShader(device, vertexShaderCode.Data);
+    //let immediateContext = device.ImmediateContext
+    //immediateContext.VertexShader.Set(vertexShader)
+    //let inputElements = [| new InputElement("POSITION",0,Format.R32G32B32_Float,0,0); new InputElement("COLOR",0,Format.R32G32B32_Float,16,0) |]
+    //let inputLayout = new InputLayout(device, vertexShaderCode, inputElements)
+    //immediateContext.InputAssembler.InputLayout <- inputLayout 
 
-    let vertexShaderDevice = new VertexShader(device, vertexShader.Data);
+    let deviceContext = d2DRenderTarget.QueryInterface<Direct2D1.DeviceContext>()
+    let gaussianBlurEffect = new GaussianBlur(deviceContext)
+    gaussianBlurEffect.StandardDeviation <- 10.0f
 
-//    device.VertexShader.Set(vertexShaderDevice)
-    //let inputElements = [| new InputElement("POSITION",0,Format.R32G32B32_Float,0,0) |]
-    //device.InputAssembler.SetVertexBuffers()
-    //device.InputAssembler
 
 
     RenderLoop.Run(form, fun _ ->
