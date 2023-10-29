@@ -7,8 +7,6 @@ we are Windows-only.
 
 To run:
 ```
-dotnet tool restore
-dotnet paket restore
 dotnet run --project .\Turtles.DirectX\Turtles.DirectX.fsproj
 ```
 Depending on how it is being run, it could run full screen and you must use alt+f4 to kill it again, but I would
