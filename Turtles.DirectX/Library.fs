@@ -11,7 +11,6 @@ open Boxes
 open Limited 
 open ScreenSettings
 open SharpDX.D3DCompiler
-open System.Runtime.InteropServices
 open SharpDX.Direct3D
 
 [<STAThread>]
@@ -116,8 +115,8 @@ let main argv =
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 3 (f ) b
 
-    //let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
-    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_4_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+    //let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_4_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
 
     let vertexShaderDevice = new VertexShader(device, vertexShader.Data);
 
