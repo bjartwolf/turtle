@@ -3,7 +3,7 @@ open System.Drawing
 open SharpDX
 open SharpDX.Mathematics
 open SharpDX.Direct2D1
-open SharpDX.Direct3D10
+open SharpDX.Direct3D11
 open SharpDX.DXGI
 open SharpDX.Windows
 open Fish
@@ -12,6 +12,7 @@ open Limited
 open ScreenSettings
 open SharpDX.D3DCompiler
 open System.Runtime.InteropServices
+open SharpDX.Direct3D
 
 [<STAThread>]
 [<EntryPoint>]
@@ -29,15 +30,19 @@ let main argv =
                 IsWindowed = Interop.RawBool(true),
                 Usage = Usage.RenderTargetOutput)
 
-    let mutable device: SharpDX.Direct3D10.Device1 = null
-    let swapChain = ref null 
-    SharpDX.Direct3D10.Device1.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, desc,
-                SharpDX.Direct3D10.FeatureLevel.Level_10_1, &device, swapChain) 
+    let mutable device: Direct3D11.Device = null
+
+    let mutable swapChain: SwapChain = null 
+
+    let driverType: DriverType = Direct3D.DriverType.Hardware
+
+    SharpDX.Direct3D11.Device1.CreateWithSwapChain(driverType = driverType, flags = DeviceCreationFlags.BgraSupport, swapChainDescription = desc, device = &device, swapChain = &swapChain) 
 
     use d2DFactory = new Direct2D1.Factory()
-    use factory = (!swapChain).GetParent<Factory>()
+
+    use factory = swapChain.GetParent<Factory>()
     factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll)
-    use backBuffer = Resource.FromSwapChain<Texture2D>((!swapChain), 0)
+    use backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0)
     let surface = backBuffer.QueryInterface<Surface>()
     let d2DRenderTarget = new RenderTarget(d2DFactory, surface, 
                                   RenderTargetProperties(
@@ -116,7 +121,7 @@ let main argv =
 
     let vertexShaderDevice = new VertexShader(device, vertexShader.Data);
 
-    device.VertexShader.Set(vertexShaderDevice)
+//    device.VertexShader.Set(vertexShaderDevice)
     //let inputElements = [| new InputElement("POSITION",0,Format.R32G32B32_Float,0,0) |]
     //device.InputAssembler.SetVertexBuffers()
     //device.InputAssembler
@@ -127,12 +132,12 @@ let main argv =
             d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 1.010f)))
             draw pic
             d2DRenderTarget.EndDraw()
-            (!swapChain).Present(0, PresentFlags.None) |> ignore
+            swapChain.Present(0, PresentFlags.None) |> ignore
         )
     printfn "%A" argv
     backBuffer.Dispose()
-    device.ClearState()
-    device.Flush()
-    device.Dispose()
-    (!swapChain).Dispose()
+//    device.ClearState()
+//    device.Flush()
+//    device.Dispose()
+//    (!swapChain).Dispose()
     0 // return an integer exit code
