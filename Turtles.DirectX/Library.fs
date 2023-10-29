@@ -10,6 +10,7 @@ open Fish
 open Boxes 
 open Limited 
 open ScreenSettings
+open SharpDX.D3DCompiler
 
 [<STAThread>]
 [<EntryPoint>]
@@ -26,6 +27,7 @@ let main argv =
                 SwapEffect = SwapEffect.Discard,
                 IsWindowed = Interop.RawBool(true),
                 Usage = Usage.RenderTargetOutput)
+
     let mutable device: SharpDX.Direct3D10.Device1 = null
     let swapChain = ref null 
     SharpDX.Direct3D10.Device1.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, desc,
@@ -106,6 +108,10 @@ let main argv =
 
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 3 (f ) b
+
+    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+
+
 
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()

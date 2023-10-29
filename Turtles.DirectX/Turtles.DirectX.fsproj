@@ -7,8 +7,15 @@
     <ProjectReference Include="..\Turtles\Turtles.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoadBitmap.fs" />
-    <Compile Include="ScreenSettings.fs" />
+    <Content Include="shaders.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LoadBitmap.fs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="ScreenSettings.fs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Boxes.fs" />
     <Compile Include="Pictures.fs" />
     <Compile Include="Limited.fs" />
@@ -23,5 +30,10 @@
     <PackageReference Include="SharpDX.Direct3D10" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
 </Project>
