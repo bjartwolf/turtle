@@ -94,19 +94,14 @@ let main argv =
                      else 
                         -cLength
 
-//        Console.WriteLine(sprintf "Vector a: %A Vector b: %A Vector c: %A " box.a box.b box.c)
-//        Console.WriteLine(sprintf "delta: %f --- angleBC: %f ----- cScale:  %f" delta angleBC cScale)
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
-//        transform (rotate rotAngleB box.a) geo
-        //transform ((rotate rotAngleB box.a) * (scale bLength cLength box.a) * (translate box.a.X box.a.Y)) geo
         let mtrx = (scaleOrigo bLength cScale) * (translate box.a.X box.a.Y) * (rotate rotAngleB box.a)
         mtrx
 
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-//    let bitmapBrush = new BitmapBrush(d2DRenderTarget, LoadBitmap.Load "image.jpg" d2DRenderTarget)
-    let draw (geo: Geometry) (zoom: float32) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 1.0f/zoom)
+    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 1.0f)
 
     let transform : Box -> Geometry -> Geometry = 
       let transformer (factory: Direct2D1.Factory) (box: Box) (geo : Geometry) : Geometry =
@@ -114,36 +109,26 @@ let main argv =
         new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
       transformer d2DFactory 
 
-    let rotateStep : float32 -> Geometry -> Geometry = 
-      let transformer (factory: Direct2D1.Factory) (rotation: float32) (geo : Geometry) : Geometry =
-        let mtrx = Matrix3x2.Rotation (rotation / (2.0f*float32 Math.PI))
-        new TransformedGeometry(factory, geo, mtrx |> matrixToRaw) :> Geometry
-      transformer d2DFactory 
-
     let group = grouper d2DFactory 
     let baz = getThings emptyGeo group 
 
     let fish = fishGeo :> Geometry 
-    let b =  { a = Vector(0.0f, 0.0f); 
-               b = Vector(1000.0f, 000.0f);
-               c = Vector(00.0f, 1000.0f)}
-    let f = fun i -> fun (box:Box) -> transform box (rotateStep i fish) 
-    let pic : Geometry = b |> baz.squareLimit 7 (f (float32 0))
-    let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
-    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max/2.0f, float32 ScreenRes.y_max/2.0f)
+    let b: Box =  { a = Vector(0.0f, 0.0f); 
+                    b = Vector(1500.0f, 000.0f);
+                    c = Vector(0.0f, 1500.0f)}
 
-    let mutable i:float32 = 1.0f
+    let f = fun i -> fun (box:Box) -> transform box fish 
+    let pic : Geometry = baz.squareLimit 7 (f (float32 0)) b
+    let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
+    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
+
     RenderLoop.Run(form, fun _ ->
-            i <- i + 0.01f
             d2DRenderTarget.BeginDraw()
-            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.010f)))
-            draw pic i 
-            if (i > 4.0f) then i <- 2.0f 
+            d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 1.010f)))
+            draw pic
             d2DRenderTarget.FillRectangle(rect, rectBrush);
-            d2DRenderTarget.Transform <- skew i i |> matrixToRaw
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
-//            Console.ReadLine() |> ignore
         )
     printfn "%A" argv
     backBuffer.Dispose()
