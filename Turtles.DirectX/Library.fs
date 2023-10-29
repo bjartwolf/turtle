@@ -11,6 +11,7 @@ open Boxes
 open Limited 
 open ScreenSettings
 open SharpDX.D3DCompiler
+open System.Runtime.InteropServices
 
 [<STAThread>]
 [<EntryPoint>]
@@ -41,6 +42,7 @@ let main argv =
     let d2DRenderTarget = new RenderTarget(d2DFactory, surface, 
                                   RenderTargetProperties(
                                     PixelFormat(Format.Unknown, Direct2D1.AlphaMode.Premultiplied)))
+
 
     let hotpink = Color.HotPink.ToVector3()
     
@@ -109,8 +111,15 @@ let main argv =
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 3 (f ) b
 
-    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+    //let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+    let vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_4_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
 
+    let vertexShaderDevice = new VertexShader(device, vertexShader.Data);
+
+    device.VertexShader.Set(vertexShaderDevice)
+    //let inputElements = [| new InputElement("POSITION",0,Format.R32G32B32_Float,0,0) |]
+    //device.InputAssembler.SetVertexBuffers()
+    //device.InputAssembler
 
 
     RenderLoop.Run(form, fun _ ->
