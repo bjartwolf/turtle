@@ -118,7 +118,7 @@ let main argv =
                     c = Vector(0.0f, 1500.0f)}
 
     let f = fun (box:Box) -> transform box fish 
-    let pic : Geometry = baz.squareLimit 7 f b
+    let pic : Geometry = baz.squareLimit 7 (f ) b
     let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
     let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
 
