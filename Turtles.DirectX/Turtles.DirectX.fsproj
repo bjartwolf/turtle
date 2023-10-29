@@ -15,5 +15,4 @@
     <Compile Include="Fish.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

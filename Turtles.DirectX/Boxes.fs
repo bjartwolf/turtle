@@ -1,7 +1,6 @@
 module Boxes 
 open SharpDX
 open SharpDX.Mathematics
-open SharpDX.Mathematics.Interop
 open SharpDX.Direct2D1
 
 type RawVector = Interop.RawVector2

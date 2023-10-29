@@ -1,11 +1,6 @@
 module LoadBitmap
-open System.Drawing
 open SharpDX
-open SharpDX.Mathematics
 open SharpDX.Direct2D1
-open SharpDX.Direct3D10
-open SharpDX.DXGI
-open SharpDX.Windows
 
 let Load(filename: string) (rndrTarget: RenderTarget)= 
     let bmp : System.Drawing.Bitmap = System.Drawing.Image.FromFile(filename) :?> System.Drawing.Bitmap 

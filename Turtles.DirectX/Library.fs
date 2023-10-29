@@ -105,7 +105,7 @@ let main argv =
                     c = Vector(0.0f, 1500.0f)}
 
     let f = fun (box:Box) -> transform box fish 
-    let pic : Geometry = baz.squareLimit 7 (f ) b
+    let pic : Geometry = baz.squareLimit 3 (f ) b
 
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()
