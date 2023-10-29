@@ -82,12 +82,11 @@ let main argv =
         sink.BeginFigure(start, FigureBegin.Hollow  )
         sink.AddBezier(bezierCurve)
         sink.EndFigure(FigureEnd.Open)
-    let foo = sink.Close()
+
+    sink.Close()
     let boxToMtrx (box: Box) : Matrix3x2 = 
         let bLength = box.b.Length()
         let cLength = box.c.Length()
-        let dotProdBC = Vector2.Dot(box.b,box.c)
-        let angleBC = acos (dotProdBC / (bLength * cLength )) 
         let delta = box.c.X * box.b.Y - box.c.Y*box.b.X 
         let cScale = if delta < 0.0f then
                         cLength
@@ -101,7 +100,7 @@ let main argv =
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
         new GeometryGroup(factory, FillMode.Alternate, geos)
 
-    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 1.0f)
+    let draw (geo: Geometry) = d2DRenderTarget.DrawGeometry(geo, pinkBrush, 0.5f)
 
     let transform : Box -> Geometry -> Geometry = 
       let transformer (factory: Direct2D1.Factory) (box: Box) (geo : Geometry) : Geometry =
@@ -119,14 +118,11 @@ let main argv =
 
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 7 (f ) b
-    let rectBrush = new SolidColorBrush(d2DRenderTarget, Interop.RawColor4(0.0f, 0.0f, 0.0f, 0.10f));
-    let rect: Interop.RawRectangleF = Interop.RawRectangleF(0.0f, 0.0f, float32 ScreenRes.x_max, float32 ScreenRes.y_max)
 
     RenderLoop.Run(form, fun _ ->
             d2DRenderTarget.BeginDraw()
             d2DRenderTarget.Clear(new Nullable<Interop.RawColor4>(Interop.RawColor4(0.0f, 0.0f, 0.0f, 1.010f)))
             draw pic
-            d2DRenderTarget.FillRectangle(rect, rectBrush);
             d2DRenderTarget.EndDraw()
             (!swapChain).Present(0, PresentFlags.None) |> ignore
         )
