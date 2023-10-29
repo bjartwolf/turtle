@@ -1,6 +1,5 @@
 ﻿open System
 open System.Drawing
-open System.Windows
 open SharpDX
 open SharpDX.Mathematics
 open SharpDX.Direct2D1
@@ -11,9 +10,6 @@ open Fish
 open Boxes 
 open Limited 
 open ScreenSettings
-
-open My.Turtles
-open SharpDX.Direct2D1.Effects
 
 [<STAThread>]
 [<EntryPoint>]
@@ -39,7 +35,6 @@ let main argv =
     use factory = (!swapChain).GetParent<Factory>()
     factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll)
     use backBuffer = Resource.FromSwapChain<Texture2D>((!swapChain), 0)
-    use renderTrgt = new RenderTargetView(device, backBuffer)
     let surface = backBuffer.QueryInterface<Surface>()
     let d2DRenderTarget = new RenderTarget(d2DFactory, surface, 
                                   RenderTargetProperties(
@@ -60,13 +55,6 @@ let main argv =
 
     let scaleOrigo (scalex:float32) (scaley: float32) =
         Matrix3x2.Scaling(scalex, scaley)
-
-    let scale (scalex:float32) (scaley: float32) (center: Vector2)= 
-        Matrix3x2.Scaling(scalex, scaley, center)
-
-    ///<summary>Missing rotation point?</summary>
-    let skew(angleX:float32) (angleY: float32) = 
-        scaleOrigo angleX angleY        
 
     let rotate angle (point : Vector2) = Matrix3x2.Rotation(angle, point)
      
