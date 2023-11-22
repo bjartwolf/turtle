@@ -1,17 +1,9 @@
 ﻿open System
-open System.Drawing
 open SharpDX
 open SharpDX.Mathematics
 open SharpDX.Direct2D1
-open SharpDX.Direct3D11
-open SharpDX.DXGI
-open SharpDX.Windows
-open Fish
 open Boxes 
 open Limited 
-open ScreenSettings
-open SharpDX.Direct3D
-open SharpDX.Direct2D1.Effects
 
 [<STAThread>]
 [<EntryPoint>]
@@ -36,13 +28,6 @@ let main argv =
 
     let fishGeo = new PathGeometry(d2DFactory) 
     let sink = fishGeo.Open()
-    sink.SetFillMode(Direct2D1.FillMode.Alternate)
-    for (start, bezierCurve) in hendersonFishCurves do
-        let start = Interop.RawVector2(start.X, start.Y)
-        sink.BeginFigure(start, FigureBegin.Hollow  )
-        sink.AddBezier(bezierCurve)
-        sink.EndFigure(FigureEnd.Open)
-
     sink.Close()
     let boxToMtrx (box: Box) : Matrix3x2 = 
         let bLength = box.b.Length()
