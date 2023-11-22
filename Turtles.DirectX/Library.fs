@@ -4,6 +4,7 @@ open SharpDX.Mathematics
 open SharpDX.Direct2D1
 open Boxes 
 open Limited 
+open Newtonsoft.Json
 
 [<STAThread>]
 [<EntryPoint>]
@@ -74,8 +75,10 @@ let main argv =
 
     printfn "%A" (allMatrixes.[1])
     printfn "%A" (allMatrixes.Length)
+    let json = JsonConvert.SerializeObject(allMatrixes)
+    System.IO.File.WriteAllText("matrixes.json", json) 
 
-    printfn "%A" argv
+    printfn "%A" json 
 //    device.ClearState()
 //    device.Flush()
 //    device.Dispose()
