@@ -76,7 +76,7 @@ let main argv =
     printfn "%A" (allMatrixes.[1])
     printfn "%A" (allMatrixes.Length)
     let json = JsonConvert.SerializeObject(allMatrixes)
-    System.IO.File.WriteAllText("matrixes.json", json) 
+    System.IO.File.WriteAllText("c:\code\shaderfish\src\public\matrixes.json", json) 
 
     printfn "%A" json 
 //    device.ClearState()
