@@ -29,6 +29,7 @@ let main argv =
     let fishGeo = new PathGeometry(d2DFactory) 
     let sink = fishGeo.Open()
     sink.Close()
+    let mutable matrixes: Matrix3x2 ResizeArray = ResizeArray()
     let boxToMtrx (box: Box) : Matrix3x2 = 
         let bLength = box.b.Length()
         let cLength = box.c.Length()
@@ -40,6 +41,7 @@ let main argv =
 
         let rotAngleB = float32 (Math.Atan2(float box.b.Y, float box.b.X))
         let mtrx = (scaleOrigo bLength cScale) * (translate box.a.X box.a.Y) * (rotate rotAngleB box.a)
+        matrixes.Add(mtrx)
         mtrx
 
     let grouper (factory: Direct2D1.Factory) (geos: Geometry []) = 
@@ -61,6 +63,17 @@ let main argv =
 
     let f = fun (box:Box) -> transform box fish 
     let pic : Geometry = baz.squareLimit 5 f b
+
+    let matrixToArrays (matrix: Matrix3x2): float32 array array =
+        [|
+        [| matrix.M11; matrix.M12; float32 0.0 |];
+        [| matrix.M21; matrix.M22; float32 0.0 |];
+        [| matrix.M31; matrix.M32; float32 0.0 |]
+        |]
+    let allMatrixes = Seq.map (fun x -> matrixToArrays x) matrixes |> Seq.toList
+
+    printfn "%A" (allMatrixes.[1])
+    printfn "%A" (allMatrixes.Length)
 
     printfn "%A" argv
 //    device.ClearState()
